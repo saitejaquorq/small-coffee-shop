@@ -10,8 +10,8 @@ Covers:
 - All staff endpoints return 401 without a valid token
 """
 
-from sqlalchemy.orm import Session
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 from app import auth
 from app.database import SessionLocal
@@ -269,9 +269,12 @@ def test_complete_order_not_found_returns_404() -> None:
 def test_admin_items_endpoints_without_token_return_401() -> None:
     """Every admin item endpoint must return 401 without a token."""
     assert client.get("/api/admin/items").status_code == 401
-    assert client.post(
-        "/api/admin/items",
-        json={"name": "X", "price": 1.0, "category_id": 1},
-    ).status_code == 401
+    assert (
+        client.post(
+            "/api/admin/items",
+            json={"name": "X", "price": 1.0, "category_id": 1},
+        ).status_code
+        == 401
+    )
     assert client.put("/api/admin/items/1", json={"name": "X"}).status_code == 401
     assert client.delete("/api/admin/items/1").status_code == 401

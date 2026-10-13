@@ -56,9 +56,7 @@ DbDep = Annotated[Session, Depends(get_db)]
 async def list_categories(_: AdminDep, db: DbDep) -> list[dict]:
     """List all categories including those with no items."""
     categories = (
-        db.execute(
-            select(Category).order_by(Category.display_order.asc(), Category.id.asc())
-        )
+        db.execute(select(Category).order_by(Category.display_order.asc(), Category.id.asc()))
         .scalars()
         .all()
     )
@@ -99,9 +97,7 @@ async def update_category(
     """
     category = db.get(Category, category_id)
     if category is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
     category.name = body.name
     if body.display_order is not None:
         category.display_order = body.display_order
@@ -115,9 +111,7 @@ async def delete_category(category_id: int, _: AdminDep, db: DbDep) -> None:
     """Delete a category. Returns 409 if items are still assigned."""
     category = db.get(Category, category_id)
     if category is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
     item_count = db.execute(
         select(func.count(MenuItem.id)).where(MenuItem.category_id == category_id)
     ).scalar_one()
