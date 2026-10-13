@@ -12,8 +12,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import models  # noqa: F401 -- imported so the tables register before create_all
-from app.database import Base, engine
+from app.database import Base, SessionLocal, engine
 from app.routers import admin, auth, public_api, staff
+from app.seed import run_seed
 
 _DESCRIPTION = (
     "Build a small coffee shop website where customers browse the menu and "
@@ -47,6 +48,11 @@ app.add_middleware(
 # The scaffold ships no migrations, so the tables are created from the models on
 # startup. Replace this with Alembic before anything holds data worth keeping.
 Base.metadata.create_all(bind=engine)
+
+# Seed the database with initial menu data so the frontend can display real
+# data immediately. The seed is idempotent and only runs on an empty database.
+with SessionLocal() as _seed_session:
+    run_seed(_seed_session)
 
 # One router per architecture component that owns endpoints.
 app.include_router(public_api.router)

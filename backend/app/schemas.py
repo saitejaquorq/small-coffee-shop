@@ -45,8 +45,9 @@ class MenuItemOut(BaseModel):
     id: int
     name: str
     description: str | None
-    price: Decimal
+    price: float
     image_url: str | None
+    is_available: bool
 
     model_config = {"from_attributes": True}
 
@@ -54,7 +55,7 @@ class MenuItemOut(BaseModel):
 class CategoryWithItems(BaseModel):
     id: int
     name: str
-    display_order: int | None
+    display_order: int
     items: list[MenuItemOut]
 
     model_config = {"from_attributes": True}
