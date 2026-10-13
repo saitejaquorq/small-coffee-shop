@@ -140,7 +140,6 @@ def test_unavailable_items_excluded() -> None:
 def test_unavailable_item_hidden_from_category() -> None:
     """An unavailable item must not appear in its category's items array."""
     session: Session = SessionLocal()
-    created_item = None
     created_category = None
     try:
         # Insert a category with one available and one unavailable item
@@ -167,12 +166,9 @@ def test_unavailable_item_hidden_from_category() -> None:
         )
         session.add_all([available, unavailable])
         session.commit()
-        created_item = unavailable
 
         categories = _get_menu()
-        test_cat_resp = next(
-            (c for c in categories if c["name"] == "TestMixed"), None
-        )
+        test_cat_resp = next((c for c in categories if c["name"] == "TestMixed"), None)
         assert test_cat_resp is not None, "Category with available items should appear"
         item_names = [item["name"] for item in test_cat_resp["items"]]
         assert "TestAvailable" in item_names

@@ -1,13 +1,14 @@
 """Admin API endpoints for category and menu-item CRUD.
 
-All routes require a valid admin JWT. Category handlers remain stubs; menu-item
-handlers are fully implemented with database persistence and validation.
+All routes require a valid admin JWT. Category handlers are fully implemented
+with database persistence and validation; menu-item handlers are also fully
+implemented.
 """
 
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import auth
@@ -21,7 +22,6 @@ from app.schemas import (
     MenuItemAdminOut,
     MenuItemCreate,
     MenuItemUpdate,
-    StubResponse,
 )
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -49,42 +49,85 @@ AdminDep = Annotated[dict, Depends(require_admin)]
 DbDep = Annotated[Session, Depends(get_db)]
 
 
-# ── Categories (stubs) ────────────────────────────────────────────────────
+# ── Categories ─────────────────────────────────────────────────────────────
 
 
 @router.get("/categories", response_model=list[CategoryWithItemCount])
-async def list_categories(_: AdminDep) -> list[StubResponse]:
-    """List all categories including those with no items.
+async def list_categories(_: AdminDep, db: DbDep) -> list[dict]:
+    """List all categories including those with no items."""
+    categories = (
+        db.execute(
+            select(Category).order_by(Category.display_order.asc(), Category.id.asc())
+        )
+        .scalars()
+        .all()
+    )
 
-    Stub: replace with a database query.
-    """
-    return []
+    result: list[dict] = []
+    for category in categories:
+        item_count = db.execute(
+            select(func.count(MenuItem.id)).where(MenuItem.category_id == category.id)
+        ).scalar_one()
+        result.append(
+            CategoryWithItemCount(
+                id=category.id,
+                name=category.name,
+                display_order=category.display_order,
+                item_count=item_count,
+            )
+        )
+    return result
 
 
 @router.post("/categories", response_model=CategoryOut, status_code=status.HTTP_201_CREATED)
-async def create_category(body: CategoryCreate, _: AdminDep) -> StubResponse:
-    """Create a new category.
-
-    Stub: replace with a database insert.
-    """
-    return StubResponse(endpoint="POST /api/admin/categories")
+async def create_category(body: CategoryCreate, _: AdminDep, db: DbDep) -> Category:
+    """Create a new category."""
+    category = Category(name=body.name, display_order=body.display_order)
+    db.add(category)
+    db.commit()
+    db.refresh(category)
+    return category
 
 
 @router.put("/categories/{category_id}", response_model=CategoryOut)
-async def update_category(category_id: int, body: CategoryUpdate, _: AdminDep) -> StubResponse:
+async def update_category(
+    category_id: int, body: CategoryUpdate, _: AdminDep, db: DbDep
+) -> Category:
     """Update an existing category name and display order.
 
-    Stub: replace with a database update; return 404 when not found.
+    Returns 404 when the category does not exist.
     """
-    return StubResponse(endpoint=f"PUT /api/admin/categories/{category_id}")
+    category = db.get(Category, category_id)
+    if category is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
+        )
+    category.name = body.name
+    if body.display_order is not None:
+        category.display_order = body.display_order
+    db.commit()
+    db.refresh(category)
+    return category
 
 
 @router.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_category(category_id: int, _: AdminDep) -> None:
-    """Delete a category. Returns 409 if items are still assigned.
-
-    Stub: replace with a database delete; check for assigned items first.
-    """
+async def delete_category(category_id: int, _: AdminDep, db: DbDep) -> None:
+    """Delete a category. Returns 409 if items are still assigned."""
+    category = db.get(Category, category_id)
+    if category is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
+        )
+    item_count = db.execute(
+        select(func.count(MenuItem.id)).where(MenuItem.category_id == category_id)
+    ).scalar_one()
+    if item_count > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete a category that still has items assigned",
+        )
+    db.delete(category)
+    db.commit()
     return None
 
 
