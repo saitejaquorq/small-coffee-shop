@@ -27,4 +27,39 @@ def test_the_openapi_document_builds() -> None:
     response = client.get("/openapi.json")
 
     assert response.status_code == 200
-    assert "/health" in response.json()["paths"]
+    paths = response.json()["paths"]
+    assert "/health" in paths
+    # Every endpoint the approved API spec declares should be present.
+    assert "/api/menu" in paths
+    assert "/api/orders" in paths
+    assert "/api/orders/{cart_order_id}" in paths
+    assert "/api/auth/staff" in paths
+    assert "/api/auth/admin" in paths
+    assert "/api/staff/orders" in paths
+    assert "/api/staff/orders/{order_id}/complete" in paths
+    assert "/api/admin/categories" in paths
+    assert "/api/admin/categories/{category_id}" in paths
+    assert "/api/admin/items" in paths
+    assert "/api/admin/items/{item_id}" in paths
+
+
+def test_menu_returns_list() -> None:
+    """The public menu endpoint should respond with a list (empty until seeded)."""
+    response = client.get("/api/menu")
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
+def test_staff_orders_require_auth() -> None:
+    """Staff endpoints should reject requests without a token."""
+    response = client.get("/api/staff/orders")
+
+    assert response.status_code == 401
+
+
+def test_admin_categories_require_auth() -> None:
+    """Admin endpoints should reject requests without a token."""
+    response = client.get("/api/admin/categories")
+
+    assert response.status_code == 401

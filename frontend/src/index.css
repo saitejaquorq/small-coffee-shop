@@ -7,11 +7,11 @@
   --brand-radius: 0.5rem;
   --brand-font-heading: Inter, system-ui, sans-serif;
   --brand-font-body: Inter, system-ui, sans-serif;
-  --brand-surface: #ffffff;
-  --brand-border: #e2e8f0;
-  --brand-fg: #0f172a;
-  --brand-fg-muted: #64748b;
-  --brand-hover: #f1f5f9;
+  --brand-surface: #FFFFFF;
+  --brand-border: #E8E4DC;
+  --brand-fg: #2C3329;
+  --brand-fg-muted: #6B6B63;
+  --brand-hover: #EDE8DC;
   --brand-background: #F5F2EC;
 }
 

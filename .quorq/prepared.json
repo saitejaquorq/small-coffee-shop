@@ -1,0 +1,37 @@
+{
+  "architecture_npm": [
+    "animejs",
+    "axios"
+  ],
+  "key": {
+    "app_design_id": "dd8b1b2e-6f6e-4012-a02a-74e593260494",
+    "app_design_version": 1,
+    "architecture_document_id": "7024e3fb-070a-4914-b719-594761c1bf0e",
+    "architecture_version": 3
+  },
+  "outcome": "prepared",
+  "packages": [
+    {
+      "ecosystem": "pypi",
+      "installed_version": "2.15.1",
+      "name": "PyJWT",
+      "status": "installed",
+      "version": ">=2.8.0"
+    },
+    {
+      "ecosystem": "npm",
+      "installed_version": "1.20.0",
+      "name": "axios",
+      "status": "installed",
+      "version": ""
+    },
+    {
+      "ecosystem": "npm",
+      "installed_version": "4.5.0",
+      "name": "animejs",
+      "status": "installed",
+      "version": ""
+    }
+  ],
+  "prepared_by_run": "80b1f727-17f0-4595-9527-bf609da8b5c0"
+}

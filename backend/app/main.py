@@ -13,10 +13,20 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import models  # noqa: F401 -- imported so the tables register before create_all
 from app.database import Base, engine
+from app.routers import admin, auth, public_api, staff
+
+_DESCRIPTION = (
+    "Build a small coffee shop website where customers browse the menu and "
+    "place an order for pickup. There are no customer accounts: every order "
+    "is a guest order. Customers browse the menu, add items to a cart, adjust "
+    "quantities, and place the order without signing in. On placing the order "
+    "they get a cart order ID to take to the kiosk. Cafe staff see incoming "
+    "orders with their items and order ID. Admin/owner manages the menu."
+)
 
 app = FastAPI(
     title="Small coffee shop website where",
-    description="Build a small coffee shop website where customers browse the menu and place an\norder for pickup. There are no customer accounts: every order is a guest order.\n\nWho it's for:\n- Customers (guests): browse the menu, add items to a cart, adjust quantities,\n  and place the order without signing in. On placing the order they get a cart\n  order ID to take to the kiosk.\n- Cafe staff: see incoming orders with their items and order ID so they can\n  prepare them.\n- Admin/owner: manage the menu (add, edit, remove items and prices).\n\nCore behaviour it cannot ship without:\n- Show the menu with items, descriptions, and prices.\n- Add items to a cart, change quantities, and remove items.\n- Place the order as a guest and generate a unique cart order ID.\n- Save every order (items, quantities, order ID, time) to the cafe's own\n  database.\n- Let staff view placed orders by order ID.\n\nWhat it works with:\n- Standalone. The cafe's own database is the only store. No external systems.\n- Payment is out of scope of the website. The customer pays at the kiosk by\n  giving the cart order ID; the website never takes payment and holds no\n  payment data.\n\nScale and constraints:\n- One coffee shop, small menu, small order volume.\n- Web-based, mobile-friendly for customers ordering on a phone.\n- No hard launch deadline.",
+    description=_DESCRIPTION,
     version="0.1.0",
 )
 
@@ -37,6 +47,12 @@ app.add_middleware(
 # The scaffold ships no migrations, so the tables are created from the models on
 # startup. Replace this with Alembic before anything holds data worth keeping.
 Base.metadata.create_all(bind=engine)
+
+# One router per architecture component that owns endpoints.
+app.include_router(public_api.router)
+app.include_router(auth.router)
+app.include_router(staff.router)
+app.include_router(admin.router)
 
 
 @app.get("/health")

@@ -25,8 +25,10 @@ export default tseslint.config(
   },
   {
     // Generated design screens carry `@ts-nocheck`: they are written under the
-    // design phase's JS runtime contract, not as hand-written TypeScript.
+    // design phase's JS runtime contract, not as hand-written TypeScript. That
+    // contract also uses `var` declarations, which the recommended JS rule set
+    // flags but the generated code is not ours to rewrite.
     files: ["src/screens/**"],
-    rules: { "@typescript-eslint/ban-ts-comment": "off" },
+    rules: { "@typescript-eslint/ban-ts-comment": "off", "no-var": "off" },
   },
 );
