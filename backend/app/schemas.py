@@ -96,7 +96,7 @@ class MenuItemAdminOut(BaseModel):
     category_id: int
     name: str
     description: str | None
-    price: Decimal
+    price: float
     image_url: str | None
     is_available: bool
 
@@ -107,18 +107,18 @@ class MenuItemCreate(BaseModel):
     category_id: int
     name: str
     description: str | None = None
-    price: Decimal
+    price: float
     image_url: str | None = None
-    is_available: bool
+    is_available: bool = True
 
 
 class MenuItemUpdate(BaseModel):
-    category_id: int
-    name: str
+    category_id: int | None = None
+    name: str | None = None
     description: str | None = None
-    price: Decimal
+    price: float | None = None
     image_url: str | None = None
-    is_available: bool
+    is_available: bool | None = None
 
 
 # ── Orders ────────────────────────────────────────────────────────────────
