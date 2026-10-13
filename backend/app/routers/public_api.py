@@ -32,9 +32,7 @@ async def get_menu(db: DbDep) -> list[CategoryWithItems]:
     ``items`` array, and categories that end up with no available items are
     excluded entirely. Categories are ordered by ``display_order`` ascending.
     """
-    categories = (
-        db.execute(select(Category).order_by(Category.display_order.asc())).scalars().all()
-    )
+    categories = db.execute(select(Category).order_by(Category.display_order.asc())).scalars().all()
 
     result: list[CategoryWithItems] = []
     for category in categories:
