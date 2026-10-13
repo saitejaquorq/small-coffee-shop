@@ -53,9 +53,7 @@ async def list_staff_orders(_: StaffDep, db: DbDep) -> list[Order]:
     includes its items with ``menu_item_name``, ``quantity``,
     ``unit_price``, and ``notes``.
     """
-    orders = (
-        db.execute(select(Order).order_by(Order.created_at.desc())).scalars().all()
-    )
+    orders = db.execute(select(Order).order_by(Order.created_at.desc())).scalars().all()
     return list(orders)
 
 
